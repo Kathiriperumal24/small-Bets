@@ -24,8 +24,10 @@ const UpdatePassword = () => {
   const updateUser = async () => {
     setState((prevState) => ({ ...prevState, error: undefined }));
 
+    const { email, password } = state; // Destructure state for better readability
+
     // Check if the email is valid
-    if (!validateEmail(state.email)) {
+    if (!validateEmail(email)) {
       setState((prevState) => ({
         ...prevState,
         error: 'Enter a valid email.',
@@ -34,7 +36,7 @@ const UpdatePassword = () => {
     }
 
     // Check if the password is entered
-    if (!state.password) {
+    if (!password) {
       setState((prevState) => ({
         ...prevState,
         error: 'Enter a password.',
@@ -45,8 +47,8 @@ const UpdatePassword = () => {
     try {
       setState((prevState) => ({ ...prevState, loading: true }));
       const { data, error } = await supabase.auth.updateUser({
-        email: state.email,
-        password: state.password,
+        email,
+        password,
       });
 
       if (data) {
