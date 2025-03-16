@@ -12,7 +12,7 @@ const UpdatePassword = () => {
     email: '',
     password: '',
   });
-
+  
   const navigate = useNavigate(); // Initialize navigate function to redirect
 
   // Validate Email function directly in this file
