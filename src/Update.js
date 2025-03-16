@@ -1,113 +1,85 @@
-import React, { useState } from 'react';
-import { useNavigate } from 'react-router-dom'; 
-import { supabase } from './supabaseClient'; 
-import Alert from './Alert'; 
-import './Update.css'; 
+import { useEffect, useState } from 'react';
+import { useLocation } from 'react-router-dom';
+import { supabase } from './supabaseClient'; // Your supabase client import
+import './Update.css';
 
-const UpdatePassword = () => {
-  const [state, setState] = useState({
-    loading: false,
-    success: false,
-    error: undefined,
-    email: '',
-    password: '',
-  });
-  
-  const navigate = useNavigate(); 
+const UpdatePasswordPage = () => {
+  const location = useLocation();
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState(null);
+  const [password, setPassword] = useState('');
+  const [passwordConfirm, setPasswordConfirm] = useState('');
 
-  const validateEmail = (email) => {
-    const re = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    return re.test(String(email).toLowerCase());
-  };
+  useEffect(() => {
+    // Extract the reset token from the URL
+    const urlParams = new URLSearchParams(location.search);
+    const accessToken = urlParams.get('access_token');
+    
+    if (accessToken) {
+      // Validate the token (optional) or use it for password reset
+      console.log('Reset Token:', accessToken);
+    }
+  }, [location]);
 
-  const updateUser = async () => {
-    setState((prevState) => ({ ...prevState, error: undefined }));
+  const handleSubmit = async (e) => {
+    e.preventDefault();
 
-    const { email, password } = state; 
-
-    if (!validateEmail(email)) {
-      setState((prevState) => ({
-        ...prevState,
-        error: 'Enter a valid email.',
-      }));
+    if (password !== passwordConfirm) {
+      setError('Passwords do not match!');
       return;
     }
 
-    if (!password) {
-      setState((prevState) => ({
-        ...prevState,
-        error: 'Enter a password.',
-      }));
-      return;
-    }
-
+    setLoading(true);
     try {
-      setState((prevState) => ({ ...prevState, loading: true }));
-      const { data } = await supabase.auth.updateUser({
-        email,
-        password,
-      });
+      // Extract the token again in case it's lost during re-render
+      const urlParams = new URLSearchParams(location.search);
+      const accessToken = urlParams.get('access_token');
 
-      if (data) {
-        setState((prevState) => ({
-          ...prevState,
-          success: 'Password successfully updated.',
-        }));
+      if (!accessToken) {
+        setError('Invalid reset token');
+        return;
+      }
 
-        setTimeout(() => {
-          navigate('/login');
-        }, 1500);
+      // Reset password with Supabase
+      const { error } = await supabase.auth.api
+        .updateUser(accessToken, { password });
+
+      if (error) {
+        setError(error.message);
       } else {
-        setState((prevState) => ({
-          ...prevState,
-          error: 'Error occurred while updating user.',
-        }));
+        alert('Password updated successfully!');
+        // Optionally redirect to login page or home
       }
     } catch (error) {
-      setState((prevState) => ({
-        ...prevState,
-        error: 'Error coming from Supabase.',
-      }));
+      setError('Failed to reset password');
     } finally {
-      setState((prevState) => ({ ...prevState, loading: false }));
+      setLoading(false);
     }
   };
 
   return (
-    <div className="update-container">
-      <header className="my-6">
-        <h1 className="mb-2 text-2xl font-bold">Update your password</h1>
-        <p>Update your email or password.</p>
-      </header>
-      <div className="mx-auto">
+    <div>
+      <h2>Reset Password</h2>
+      {error && <p>{error}</p>}
+      <form onSubmit={handleSubmit}>
         <input
-          type="text"
-          className="text"
-          placeholder="mail@gmail.com"
-          value={state.email}
-          onChange={(e) => setState({ ...state, email: e.target.value })}
+          type="password"
+          placeholder="New password"
+          value={password}
+          onChange={(e) => setPassword(e.target.value)}
         />
         <input
           type="password"
-          className="text"
-          placeholder="MyNewPassword12"
-          value={state.password}
-          onChange={(e) => setState({ ...state, password: e.target.value })}
+          placeholder="Confirm password"
+          value={passwordConfirm}
+          onChange={(e) => setPasswordConfirm(e.target.value)}
         />
-      </div>
-      {state.error && <Alert text={state.error} className="alert-danger" />}
-      {state.success && <Alert text={state.success} className="alert-success" />}
-      <div>
-        <button
-          className="btn btn-primary"
-          disabled={state.loading}
-          onClick={updateUser}
-        >
-          {state.loading ? 'Loading' : 'Update'}
+        <button type="submit" disabled={loading}>
+          {loading ? 'Updating...' : 'Update Password'}
         </button>
-      </div>
+      </form>
     </div>
   );
 };
 
-export default UpdatePassword;
+export default UpdatePasswordPage;
