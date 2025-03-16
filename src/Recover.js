@@ -14,7 +14,7 @@ const PasswordRecovery = () => {
   });
 
   const { validateEmail } = useAuth(); 
-  const navigate = useNavigate(); 
+  const navigate = useNavigate(); // This is used for redirection
 
   const recoverPassword = async () => {
     setState((prevState) => ({ ...prevState, error: undefined }));
@@ -41,8 +41,8 @@ const PasswordRecovery = () => {
           success: 'Check your email to update your password.',
         }));
 
-        // Optionally, navigate to an update page or other route if needed
-        // navigate('/update');  // Uncomment this if you want to redirect after success
+        // Uncomment this if you want to redirect after success
+        // navigate('/update');  // Uncomment this to navigate to the update page after success
       }
       
       if (error) {
