@@ -1,8 +1,8 @@
 import React, { useState } from 'react';
-import { useNavigate } from 'react-router-dom'; // Import useNavigate for redirection
-import { supabase } from './supabaseClient'; // Importing supabase client
-import Alert from './Alert'; // Import the Alert component
-import './Update.css'; // Import the CSS file for styling
+import { useNavigate } from 'react-router-dom'; 
+import { supabase } from './supabaseClient'; 
+import Alert from './Alert'; 
+import './Update.css'; 
 
 const UpdatePassword = () => {
   const [state, setState] = useState({
@@ -13,9 +13,8 @@ const UpdatePassword = () => {
     password: '',
   });
   
-  const navigate = useNavigate(); // Initialize navigate function to redirect
+  const navigate = useNavigate(); 
 
-  // Validate Email function directly in this file
   const validateEmail = (email) => {
     const re = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     return re.test(String(email).toLowerCase());
@@ -24,9 +23,8 @@ const UpdatePassword = () => {
   const updateUser = async () => {
     setState((prevState) => ({ ...prevState, error: undefined }));
 
-    const { email, password } = state; // Destructure state for better readability
+    const { email, password } = state; 
 
-    // Check if the email is valid
     if (!validateEmail(email)) {
       setState((prevState) => ({
         ...prevState,
@@ -35,7 +33,6 @@ const UpdatePassword = () => {
       return;
     }
 
-    // Check if the password is entered
     if (!password) {
       setState((prevState) => ({
         ...prevState,
@@ -46,7 +43,7 @@ const UpdatePassword = () => {
 
     try {
       setState((prevState) => ({ ...prevState, loading: true }));
-      const { data, error } = await supabase.auth.updateUser({
+      const { data } = await supabase.auth.updateUser({
         email,
         password,
       });
@@ -57,7 +54,6 @@ const UpdatePassword = () => {
           success: 'Password successfully updated.',
         }));
 
-        // Redirect to the login page after 1.5 seconds to show the success message
         setTimeout(() => {
           navigate('/login');
         }, 1500);

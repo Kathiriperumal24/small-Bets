@@ -2,19 +2,18 @@ import React, { useState } from 'react';
 import { useAuth } from './useAuth'; 
 import { supabase } from './supabaseClient'; 
 import Alert from './Alert'; 
-import { useNavigate } from 'react-router-dom';
 import "./Recover.css"; 
 
 const PasswordRecovery = () => {
   const [state, setState] = useState({
     loading: false,
     success: false,
-    error: undefined,  // Ensure that 'error' is used correctly
+    error: undefined,
     email: '',
   });
 
   const { validateEmail } = useAuth(); 
-  const navigate = useNavigate(); // This is used for redirection
+  // Removed the unused navigate variable
 
   const recoverPassword = async () => {
     setState((prevState) => ({ ...prevState, error: undefined }));
@@ -35,18 +34,13 @@ const PasswordRecovery = () => {
       const { data, error } = await supabase.auth.resetPasswordForEmail(state.email);
 
       if (data) {
-        // Show success message and inform the user to check email
         setState((prevState) => ({
           ...prevState,
           success: 'Check your email to update your password.',
         }));
-
-        // Uncomment this if you want to redirect after success
-        // navigate('/update');  // Uncomment this to navigate to the update page after success
       }
       
       if (error) {
-        // Handle error if needed
         setState((prevState) => ({
           ...prevState,
           error: error.message || 'An error occurred, please try again.',
