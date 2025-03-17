@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { useNavigate } from "react-router-dom"; // Import useNavigate
 import Alert from "./Alert"; // assuming you have this component in your React setup
 import { useAuth } from "./useAuth"; // assuming the composable exists in your React project
 import { supabase } from "./supabaseClient";
@@ -14,10 +15,11 @@ const UpdatePassword = () => {
   });
 
   const { validateEmail } = useAuth();
+  const navigate = useNavigate(); // Hook to navigate to another route
 
   const updateUser = async () => {
     setState((prevState) => ({ ...prevState, error: undefined }));
-    
+
     if (!validateEmail(state.email)) {
       setState((prevState) => ({ ...prevState, error: "Enter a valid email." }));
       return;
@@ -30,7 +32,7 @@ const UpdatePassword = () => {
 
     try {
       setState((prevState) => ({ ...prevState, loading: true }));
-      
+
       const { data } = await supabase.auth.updateUser({
         email: state.email,
         password: state.password,
@@ -41,6 +43,11 @@ const UpdatePassword = () => {
           ...prevState,
           success: "Successfully updated.",
         }));
+
+        // Redirect to the login page after a successful update
+        setTimeout(() => {
+          navigate("/login"); // Assuming your login page is at the "/login" route
+        }, 1000); // Small delay to show success message before redirecting
       }
     } catch (error) {
       setState((prevState) => ({
