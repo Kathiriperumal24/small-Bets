@@ -1,8 +1,7 @@
 import React, { useState } from 'react';
-import { useAuth } from './useAuth'; 
 import { supabase } from './supabaseClient'; 
 import Alert from './Alert'; 
-import "./Recover.css"; 
+import './Recover.css'; 
 
 const PasswordRecovery = () => {
   const [state, setState] = useState({
@@ -12,14 +11,11 @@ const PasswordRecovery = () => {
     email: '',
   });
 
-  const { validateEmail } = useAuth(); 
-  // Removed the unused navigate variable
-
   const recoverPassword = async () => {
     setState((prevState) => ({ ...prevState, error: undefined }));
 
     // Validate the email
-    if (!validateEmail(state.email)) {
+    if (!state.email) {
       setState((prevState) => ({
         ...prevState,
         error: 'Enter a valid email.',
@@ -30,8 +26,13 @@ const PasswordRecovery = () => {
     try {
       setState((prevState) => ({ ...prevState, loading: true }));
       
+      // Construct the redirect URL to the update page
+      const redirectUrl = `${window.location.origin}/update`; // Redirect to the update page
+
       // Call Supabase to send the reset password email
-      const { data, error } = await supabase.auth.resetPasswordForEmail(state.email);
+      const { data, error } = await supabase.auth.resetPasswordForEmail(state.email, {
+        redirectTo: redirectUrl, // Redirect user to the update page after clicking the email link
+      });
 
       if (data) {
         setState((prevState) => ({
@@ -39,7 +40,7 @@ const PasswordRecovery = () => {
           success: 'Check your email to update your password.',
         }));
       }
-      
+
       if (error) {
         setState((prevState) => ({
           ...prevState,

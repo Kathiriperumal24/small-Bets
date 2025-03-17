@@ -1,85 +1,76 @@
-import { useEffect, useState } from 'react';
 import { useLocation } from 'react-router-dom';
-import { supabase } from './supabaseClient'; // Your supabase client import
-import './Update.css';
+import { useState, useEffect } from 'react';
+import { supabase } from './supabaseClient'; // Import your Supabase client
 
-const UpdatePasswordPage = () => {
-  const location = useLocation();
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState(null);
+const UpdatePassword = () => {
+  const location = useLocation(); // Hook to access the current URL
   const [password, setPassword] = useState('');
   const [passwordConfirm, setPasswordConfirm] = useState('');
+  const [error, setError] = useState(null);
+  const [success, setSuccess] = useState(false);
 
   useEffect(() => {
-    // Extract the reset token from the URL
     const urlParams = new URLSearchParams(location.search);
     const accessToken = urlParams.get('access_token');
     
     if (accessToken) {
-      // Validate the token (optional) or use it for password reset
-      console.log('Reset Token:', accessToken);
+      console.log('Reset Token:', accessToken); // Check the token in the console
     }
   }, [location]);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-
+    
     if (password !== passwordConfirm) {
       setError('Passwords do not match!');
       return;
     }
 
-    setLoading(true);
+    const urlParams = new URLSearchParams(location.search);
+    const accessToken = urlParams.get('access_token');
+
+    if (!accessToken) {
+      setError('Invalid or expired token');
+      return;
+    }
+
     try {
-      // Extract the token again in case it's lost during re-render
-      const urlParams = new URLSearchParams(location.search);
-      const accessToken = urlParams.get('access_token');
-
-      if (!accessToken) {
-        setError('Invalid reset token');
-        return;
-      }
-
-      // Reset password with Supabase
-      const { error } = await supabase.auth.api
-        .updateUser(accessToken, { password });
+      const { error } = await supabase.auth.api.updateUser(accessToken, {
+        password: password
+      });
 
       if (error) {
         setError(error.message);
       } else {
-        alert('Password updated successfully!');
-        // Optionally redirect to login page or home
+        setSuccess(true);
       }
     } catch (error) {
-      setError('Failed to reset password');
-    } finally {
-      setLoading(false);
+      setError('An error occurred while resetting the password');
     }
   };
 
   return (
     <div>
-      <h2>Reset Password</h2>
-      {error && <p>{error}</p>}
+      <h2>Reset Your Password</h2>
+      {error && <p style={{ color: 'red' }}>{error}</p>}
+      {success && <p style={{ color: 'green' }}>Password updated successfully!</p>}
       <form onSubmit={handleSubmit}>
         <input
           type="password"
-          placeholder="New password"
+          placeholder="New Password"
           value={password}
           onChange={(e) => setPassword(e.target.value)}
         />
         <input
           type="password"
-          placeholder="Confirm password"
+          placeholder="Confirm Password"
           value={passwordConfirm}
           onChange={(e) => setPasswordConfirm(e.target.value)}
         />
-        <button type="submit" disabled={loading}>
-          {loading ? 'Updating...' : 'Update Password'}
-        </button>
+        <button type="submit">Update Password</button>
       </form>
     </div>
   );
 };
 
-export default UpdatePasswordPage;
+export default UpdatePassword;

@@ -2,7 +2,7 @@ import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { supabase } from "./supabaseClient";
 import "./Login.css"; // Import CSS for styling
-import "./Recover.js"; // Import PasswordRecovery component
+
 function Login() {
     const [email, setEmail] = useState("");
     const [password, setPassword] = useState("");
@@ -48,9 +48,10 @@ function Login() {
                 />
                 <button type="submit">Login</button>
             </form>
-            <p><a href="/recover">Forgot your password?</a></p>
+            <p><a href="/recover">Forgot your password?</a></p> {/* Link to password recovery page */}
             <p>Don&apos;t have an account? <a href="/register">Register</a></p>
         </div>
     );
 }
+
 export default Login;

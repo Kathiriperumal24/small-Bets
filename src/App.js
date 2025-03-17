@@ -11,13 +11,13 @@ function App() {
   return (
     <Router>
       <Routes>
+        {/* Main routes */}
         <Route path="/" element={<Login />} />
         <Route path="/register" element={<Register />} />
         <Route path="/login" element={<Login />} />
         <Route path="/dashboard" element={<Dashboard />} />
         <Route path="/recover" element={<PasswordRecovery />} />
-        <Route path="/update" element={<UpdatePassword />} /> 
-        <Route path="/" element={<Login />} />
+        <Route path="/update" element={<UpdatePassword />} /> {/* Ensure this route points to UpdatePassword */}
       </Routes>
     </Router>
   );
